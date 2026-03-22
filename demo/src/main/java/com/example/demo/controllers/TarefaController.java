@@ -3,8 +3,11 @@ package com.example.demo.controllers;
 import com.example.demo.models.TarefaModel;
 import com.example.demo.services.TarefaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.util.List;
 import java.util.Optional;
 
@@ -13,16 +16,12 @@ import java.util.Optional;
 public class TarefaController {
 
     @Autowired
-    TarefaService tarefaService;
-
-    @PostMapping
-    public TarefaModel criarTarefa(@RequestBody TarefaModel tarefaModel){
-        return tarefaService.criarTarefa(tarefaModel);
-    }
+    private TarefaService tarefaService;
 
     @GetMapping
-    public List<TarefaModel> listarTarefa(){
-        return tarefaService.listarTarefa();
+    public ResponseEntity<List<TarefaModel>> listarTarefa(){
+        List<TarefaModel> lista = tarefaService.listarTarefa();
+        return ResponseEntity.ok().body(lista);
     }
 
     @GetMapping("/{id}")
@@ -30,13 +29,28 @@ public class TarefaController {
         return tarefaService.buscarId(id);
     }
 
-    @DeleteMapping("/{id}")
-    public void deletarTarefa(@PathVariable Long id){
-        tarefaService.deletarTarefa(id);
+    @PostMapping
+    public ResponseEntity<TarefaModel> criarTarefa(@RequestBody TarefaModel tarefaModel){
+        TarefaModel nova = tarefaService.criarTarefa(tarefaModel);
+
+        URI uri = ServletUriComponentsBuilder
+                .fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(nova.getId())
+                .toUri();
+
+        return ResponseEntity.created(uri).body(nova);
     }
 
-    @PutMapping
-    public TarefaModel atualizarTarefa(@PathVariable Long id, @RequestBody TarefaModel tarefaModel){
-        return tarefaService.atualizarTarefa(id, tarefaModel);
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deletarTarefa(@PathVariable Long id){
+        tarefaService.deletarTarefa(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TarefaModel> atualizarTarefa(@PathVariable Long id, @RequestBody TarefaModel tarefaModel){
+        TarefaModel atualizada = tarefaService.atualizarTarefa(id, tarefaModel);
+        return ResponseEntity.ok().body(atualizada);
     }
 }

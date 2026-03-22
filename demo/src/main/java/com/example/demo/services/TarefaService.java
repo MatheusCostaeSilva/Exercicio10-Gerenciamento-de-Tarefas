@@ -37,6 +37,8 @@ public class TarefaService {
     public TarefaModel atualizarTarefa(Long id, TarefaModel tarefaModel) {
         TarefaModel newTarefa = tarefaRepository.findById(id).get();
         newTarefa.setDescricao(tarefaModel.getDescricao());
+        newTarefa.setDataVencimento(tarefaModel.getDataVencimento());
+        newTarefa.setConcluida(tarefaModel.getConcluida());
         return tarefaRepository.save(newTarefa);
     }
 }
